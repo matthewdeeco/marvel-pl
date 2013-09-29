@@ -1,0 +1,14 @@
+real x;
+int y;
+print "Enter x: ";
+input x;
+print "Enter y: ";
+input y;
+puts "x or  y:", x or y;
+puts "x and y:", x and y;
+puts "x is  y:", x is y;
+puts "x <  y:", x < y;
+puts "x <= y:", x <= y;
+puts "x >  y:", x > y;
+puts "x >= y:", x >= y;
+puts "x isnot y:", x isnot y;

@@ -1,0 +1,6 @@
+bool x;
+bool y = false;
+print "Enter x: ";
+input x;
+y = not x;
+puts "x =", x, "y =", y;

@@ -1,0 +1,308 @@
+options {
+    STATIC = false;
+}
+
+PARSER_BEGIN(Parser)
+
+package parser;
+
+import java.util.*;
+import program.*;
+import program.statement.*;
+import program.expression.*;
+import logger.Logger;
+
+public class Parser {
+	private SymbolTable table;
+	private boolean isValid = true;
+	private Logger logger;
+	
+    public Program parse(Logger logger) {
+    	table = new SymbolTable();
+    	this.logger = logger;
+    	try {
+	        Program p = Program();
+	        if (isValid)
+	            return p;
+	        else
+	        	return null;
+	    } catch (Exception ex) {
+	    	logger.exception(ex);
+	    	return null;
+	    }
+    }
+}
+
+PARSER_END(Parser)
+
+
+// Whitespace and comments
+
+SKIP: {
+    " " | "\t" | "\n" | "\r" | <"#" (~["\n","\r"])* ("\n"|"\r")>
+}
+
+// Reserved Words and symbols
+
+TOKEN: {
+  < INTTYPE: "int" > 
+| < REALTYPE: "real" >
+| < BOOLTYPE: "bool" > 
+| < CHARTYPE: "char" > 
+| < STRTYPE: "string" >
+| "while" | "do" | "end"
+| "if" | "then" | "elsif" | "else" 
+| "print" | "puts" | "input"
+| "and" | "or" | "not" | "is" | "isnot"
+| "(" | ")" | ";" | "," | "=" | "+" | "-" | "*" | "/"
+}
+
+// Literals and identifiers
+
+TOKEN: {
+  < INTLIT: (< DIGIT >)+ >
+| < REALLIT: <INTLIT> "." <INTLIT> >
+| < BOOLLIT: "true" | "false" >
+| < CHARLIT: "'" ~[ "'" ] "'" >
+| < STRLIT: "\"" (~[ "\n", "\r", "\"" ])* "\"" >
+| < ID: <LETTER> (<LETTER>|<DIGIT>|"_")* >
+| < #LETTER: [ "A"-"Z", "a"-"z" ] >
+| < #DIGIT: [ "0" - "9" ] >
+}
+
+// Program := Block
+Program Program(): {
+    Block b;
+}{
+    b = Block() <EOF>
+    {return new Program(b);}
+}
+
+// Block := (Statement ;)*
+Block Block(): {
+    List<Statement> statements = new ArrayList<Statement>();
+    Statement s;
+}{
+    (s = Statement() ";" {statements.add(s);})*
+    {return new Block(statements);}
+}
+
+// Statement := (Declaration|Assignment|Input|Print|While|If)
+Statement Statement(): {
+	Statement s;
+}{
+    (s = DeclarationStatement()
+| 	s = AssignmentStatement()
+|	s = InputStatement()
+|   s = PrintStatement()
+|   s = WhileStatement()
+|   s = IfStatement())
+	{
+		try {
+            s.analyze(table);
+            return s;
+        } catch (TokenMgrError e) {
+            logger.exception(e);
+            isValid = false;
+            return s;
+        } catch (ParseException e) {
+        	Token t = getToken(0);
+            logger.error(e.getMessage() + String.format(" at line %d, column %d.", t.beginLine, t.beginColumn));
+            isValid = false;
+            return s;
+        } 
+     }
+}
+
+// Declaration := DataType Ident (= Expression)?
+Statement DeclarationStatement(): {
+	DataType type;
+  	Token v;
+  	Expression e = null;} {
+  	type = DataType() v = <ID> ("=" e = Expression())? 
+  	{return new VariableDeclaration(type, v.image, e);}}
+
+// DataType := int | real | char | string | bool
+DataType DataType(): {} {
+  	<INTTYPE> { return DataType.INTEGER; }
+|	<REALTYPE> { return DataType.REAL; }
+|	<BOOLTYPE> { return DataType.BOOLEAN; }
+|   <CHARTYPE> { return DataType.CHARACTER; }
+|	<STRTYPE> { return DataType.STRING; }}
+
+// Assignment := Ident = Expression
+Statement AssignmentStatement(): {
+    Token v;
+    Expression e;
+} {
+	v = <ID> "=" e = Expression()
+    {return new AssignmentStatement(new VariableReference(v.image), e);}
+}
+
+// Input := input Ident
+Statement InputStatement(): {
+    Token v;
+} {
+	"input" v = <ID>
+    {return new InputStatement(new VariableReference(v.image));}
+}
+
+// Print := (print | puts) Expression (, Expression)*
+Statement PrintStatement(): {
+    Expression e;
+    List<Expression> expressions = new ArrayList<Expression>();
+    boolean newline = false;
+} {
+	("print" | "puts" {newline = true;}) e = Expression() {expressions.add(e);}
+    ("," e = Expression() {expressions.add(e);} )*
+    {return newline ? new PutsStatement(expressions) : new PrintStatement(expressions);}
+}
+
+// While := while Expression do Block end
+Statement WhileStatement(): {
+    Block body;
+    Expression condition;
+} {
+	"while" condition = Expression() "do" body = Block() "end"
+    {return new WhileStatement(condition, body);}
+}
+
+
+// If := if Expression then Block (elsif Expression then Block)* (else Block)? end
+Statement IfStatement(): {
+	IfStatement ifs = new IfStatement();
+    Block block, elseBlock;
+    Expression condition;
+} {
+	"if" condition = Expression() "then" block = Block()
+	{ifs.addCondition(condition, block);}
+	
+	("elsif" condition = Expression() "then" block = Block()
+	{ifs.addCondition(condition, block);})*
+	
+	("else" elseBlock = Block()
+	{ifs.setElseBlock(elseBlock);})?
+	
+	"end"
+    {return ifs;}
+}
+
+// Expression := Logical ( LogicalOp Logical )*
+Expression Expression(): {
+    Expression e1, e2;
+    BinaryExpression.Operator op;
+}{
+    e1 = LogicalExpression()
+    (
+        op = LogicalOperator()
+        e2 = LogicalExpression()
+        {e1 = new BinaryExpression(op, e1, e2);}
+    )*
+    {return e1;}
+}
+
+// LogicalExpression := Arithmetic ( ComparisonOp Arithmetic )*
+Expression LogicalExpression(): {
+    Expression e1, e2;
+    BinaryExpression.Operator op;
+}{
+    e1 = ArithmeticExpression()
+    (
+        op = ComparisonOperator()
+        e2 = ArithmeticExpression()
+        {e1 = new BinaryExpression(op, e1, e2);}
+    )*
+    {return e1;}
+} 
+
+// ArithmeticExpression := Term ( AddOp Term )*
+Expression ArithmeticExpression(): {
+    Expression e1, e2;
+    BinaryExpression.Operator op;
+}{
+    e1 = Term()
+    (
+        op = AddOperator()
+        e2 = Term()
+        {e1 = new BinaryExpression(op, e1, e2);}
+    )*
+    {return e1;}
+}
+
+// Term := Factor (MulOp Factor)*
+Expression Term(): {
+    Expression e1, e2;
+    BinaryExpression.Operator op;
+}{
+    e1 = Factor()
+    (
+        op = MulOperator()
+        e2 = Factor()
+        {e1 = new BinaryExpression(op, e1, e2);}
+    )*
+    {return e1;}
+}
+
+// Factor := (UnaryOp)? Atom
+Expression Factor(): {
+	UnaryExpression.Operator op;
+	Expression e;
+}{
+	(op = UnaryOperator() e = Atom())
+	{return new UnaryExpression(op, e);}
+|	e = Atom() {return e;}
+}
+
+// Atom := IntLit | RealLit | BoolLit | CharLit | StrLit | "(" Expression ")"
+Expression Atom(): {
+	Token v;
+	Expression e;
+}{
+    v = <INTLIT> {return new IntLiteral(v.image);}
+|   v = <REALLIT> {return new RealLiteral(v.image);}
+|   v = <BOOLLIT> {return new BoolLiteral(v.image);}
+|   v = <CHARLIT> {return new CharLiteral(v.image);}
+|   v = <STRLIT> {return new StringLiteral(v.image);}
+|   v = <ID> {return new VariableReference(v.image);}
+|   "(" e = Expression() ")" {return e;}
+}
+
+// LogicalOp := and | or
+BinaryExpression.Operator LogicalOperator(): {
+}{
+    "and" {return BinaryExpression.Operator.AND;}
+|   "or" {return BinaryExpression.Operator.OR;}
+}
+
+// CompOp := is | is not | < | > | <= | >=
+BinaryExpression.Operator ComparisonOperator(): {
+}{
+    "is" {return BinaryExpression.Operator.EQUALS;}
+|   "isnot" {return BinaryExpression.Operator.NOT_EQUALS;}
+|   "<" {return BinaryExpression.Operator.LESS_THAN;}
+|   "<=" {return BinaryExpression.Operator.LESS_THAN_OR_EQUAL_TO;}
+|   ">" {return BinaryExpression.Operator.GREATER_THAN;}
+|   ">=" {return BinaryExpression.Operator.GREATER_THAN_OR_EQUAL_TO;}
+}
+
+// UnaryOp := + | - | not
+UnaryExpression.Operator UnaryOperator(): {
+}{
+    "+" {return UnaryExpression.Operator.POSITIVE;}
+|   "-" {return UnaryExpression.Operator.NEGATIVE;}
+|   "not" {return UnaryExpression.Operator.NOT;}
+}
+
+// AddOp := + | -
+BinaryExpression.Operator AddOperator(): {
+}{
+    "+" {return BinaryExpression.Operator.PLUS;}
+|   "-" {return BinaryExpression.Operator.MINUS;}
+}
+
+// MulOp := * | /
+BinaryExpression.Operator MulOperator(): {
+}{
+    "*" {return BinaryExpression.Operator.TIMES;}
+|   "/" {return BinaryExpression.Operator.DIVIDE;}
+}
