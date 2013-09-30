@@ -1,10 +1,7 @@
 package ide.controller;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.Scanner;
 
 import ide.view.DialogHandler;
 
@@ -77,7 +74,7 @@ public abstract class SaveLoadHandler {
 	private String loadState(String filePath) {
 		String loadedGameModel = null;
 		try {
-			loadedGameModel = readFile(filePath, Charset.defaultCharset());
+			loadedGameModel = readFile(filePath);
 			lastLoadPath = filePath;
 			return loadedGameModel;
 		} catch (Exception ex) {
@@ -88,9 +85,9 @@ public abstract class SaveLoadHandler {
 		}
 	}
 
-	private static String readFile(String path, Charset encoding) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(path));
-		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+	private static String readFile(String path) throws IOException {
+		File file = new File(path);
+		return new Scanner(file).useDelimiter("\\Z").next();
 	}
 
 	public void setDialogHandler(DialogHandler dialogHandler) {
