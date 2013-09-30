@@ -42,6 +42,15 @@ SKIP: {
     " " | "\t" | "\n" | "\r" | <"#" (~["\n","\r"])* ("\n"|"\r")>
 }
 
+SKIP :
+{
+	"/*" : InsideComment
+}
+<InsideComment> SKIP :
+{
+	"*/" : DEFAULT
+}
+
 // Reserved Words and symbols
 
 TOKEN: {
