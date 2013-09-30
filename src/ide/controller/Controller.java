@@ -63,6 +63,7 @@ public class Controller {
 			if (filename == null)
 				return;
 			javaSaveLoadHandler.resetPaths();
+			System.out.println(filename);
 			String className = filename.substring(0, filename.lastIndexOf(".java"));
 			String javaCode = interpreter.translateToJavaSource(className, view.getText());
 			if (javaCode != null)

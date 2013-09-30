@@ -1,7 +1,5 @@
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.util.Scanner;
 import logger.Logger;
 import parser.Parser;
 import program.Program;
@@ -15,7 +13,7 @@ public class CommandLineCompiler {
 		try {
 			InputStream in = new FileInputStream(new File(args[0]));
 			logger.message("=====Original  file=====");
-			logger.message(readFile(args[0], Charset.defaultCharset()));
+			logger.message(readFile(args[0]));
 
 			Parser parser = new Parser(in);
 			Program program = parser.parse(logger);
@@ -34,9 +32,9 @@ public class CommandLineCompiler {
 		}
 	}
 
-	private static String readFile(String path, Charset encoding) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(path));
-		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+	private static String readFile(String path) throws IOException {
+		File file = new File(path);
+		return new Scanner(file).useDelimiter("\\Z").next();
 	}
 	
 	private static void outputUsageAndExit() {
