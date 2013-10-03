@@ -49,6 +49,7 @@ SKIP :
 <InsideComment> SKIP :
 {
 	"*/" : DEFAULT
+| 	<~[]>
 }
 
 // Reserved Words and symbols
@@ -62,7 +63,7 @@ TOKEN: {
 | "while" | "do" | "end"
 | "if" | "then" | "elsif" | "else" 
 | "print" | "puts" | "input"
-| "and" | "or" | "not" | "is" | "isnot"
+| "and" | "or" | "not" | "is" | "isnot" | "unless"
 | "(" | ")" | ";" | "," | "=" | "+" | "-" | "*" | "/"
 }
 
@@ -105,7 +106,8 @@ Statement Statement(): {
 |	s = InputStatement()
 |   s = PrintStatement()
 |   s = WhileStatement()
-|   s = IfStatement())
+|   s = IfStatement()
+|   s = UnlessStatement())
 	{
 		try {
             s.analyze(table);
@@ -174,6 +176,22 @@ Statement WhileStatement(): {
 } {
 	"while" condition = Expression() "do" body = Block() "end"
     {return new WhileStatement(condition, body);}
+| 	"do" body = Block() "then" "while" condition = Expression() "end"
+	{return new DoWhileStatement(condition, body);}
+
+}
+
+// Unless := unless Expression then Block end
+Statement UnlessStatement(): {
+	UnlessStatement us = new UnlessStatement();
+	Block block;
+    Expression condition;
+} {
+	"unless" condition = Expression() "then" block = Block()
+	{us.addCondition(condition, block);}
+	
+	"end"
+    {return us;}
 }
 
 
