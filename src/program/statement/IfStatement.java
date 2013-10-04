@@ -34,7 +34,7 @@ public class IfStatement extends Statement {
     }
 
     @Override
-    public String toUnformattedJavaCode(int indentLevel) {
+    public String getMainJavaCode(int indentLevel) {
     	String result = ""; 
     	int i = 0;
     	for (Entry<Expression, Block> entry: actionMap.entrySet()) {
@@ -43,11 +43,12 @@ public class IfStatement extends Statement {
     		
     		if (i++ > 0) // else if block
     			result += " else ";
-    		result += String.format("if (%s) {\r\n%s%s}", condition.toConditionalJavaCode(), action.toJavaCode(indentLevel + 1), indent(indentLevel));
+    		result += String.format("if (%s) {\r\n%s\t}",
+    				condition.toConditionalJavaCode(), action.toJavaCode(indentLevel + 1));
     	}
     	
     	if (elseBlock != null)
-    		result += String.format(" else {\r\n%s%s}", elseBlock.toJavaCode(indentLevel + 1), indent(indentLevel));
+    		result += String.format(" else {\r\n%s\t}", elseBlock.toJavaCode(indentLevel + 1));
     	return result;
     }
 }

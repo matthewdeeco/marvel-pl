@@ -64,7 +64,6 @@ public enum DataType {
     			return (this == INTEGER || this == REAL);
 			case AND:
 			case OR:
-			case NOT:
 			case EQUALS:
 			case NOT_EQUALS:
 				return true;

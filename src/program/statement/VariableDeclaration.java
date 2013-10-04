@@ -27,7 +27,7 @@ public class VariableDeclaration extends Statement {
 	}
 
 	@Override
-	public String toUnformattedJavaCode(int indentLevel) {
+	public String getMainJavaCode(int indentLevel) {
 		String value = (initialValue == null) ? type.getInitialValue() : initialValue.toJavaCode();
 		return String.format("%s %s = %s", type.toJavaCode(), name, value);
 	}

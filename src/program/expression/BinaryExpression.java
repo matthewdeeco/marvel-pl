@@ -9,7 +9,7 @@ public class BinaryExpression extends Expression {
 
     public static enum Operator {
         PLUS("+"), MINUS("-"), TIMES("*"), DIVIDE("/"),
-        AND("&&"), OR("||"), NOT("!"),
+        AND("&&"), OR("||"),
         EQUALS("=="), NOT_EQUALS("!="), LESS_THAN("<"), LESS_THAN_OR_EQUAL_TO("<="), GREATER_THAN(">"), GREATER_THAN_OR_EQUAL_TO(">=");
 
         private String text;
@@ -81,13 +81,27 @@ public class BinaryExpression extends Expression {
 
 	@Override
 	public DataType getType() {
-		if (operator == Operator.AND || operator == Operator.OR)
-			return DataType.BOOLEAN;
-		else if (operator == Operator.DIVIDE && leftType == DataType.INTEGER && rightType == DataType.INTEGER)
-			return DataType.REAL;
-		else if (rightType == DataType.REAL)
-			return rightType;
-		else
-			return leftType;
+		switch (operator) {
+			case AND:
+			case OR:
+			case EQUALS:
+			case NOT_EQUALS:
+			case LESS_THAN:
+			case LESS_THAN_OR_EQUAL_TO:
+			case GREATER_THAN:
+			case GREATER_THAN_OR_EQUAL_TO:
+				return DataType.BOOLEAN;
+				
+			case DIVIDE:
+				if (leftType == DataType.INTEGER && rightType == DataType.INTEGER)
+					return DataType.REAL;
+			case PLUS:
+			case MINUS:
+			case TIMES:
+				if (rightType == DataType.REAL)
+					return rightType;
+			default:
+				return leftType;
+		}
 	}
 }

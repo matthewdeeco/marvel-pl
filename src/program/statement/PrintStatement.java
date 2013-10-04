@@ -1,5 +1,6 @@
 package program.statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import parser.ParseException;
@@ -11,8 +12,12 @@ public class PrintStatement extends Statement {
 
     private List<Expression> expressions;
 
-    public PrintStatement(List<Expression> expressions) {
-        this.expressions = expressions;
+    public PrintStatement() {
+        expressions = new ArrayList<Expression>();
+    }
+    
+    public void addExpression(Expression expression) {
+    	expressions.add(expression);
     }
 
     public List<Expression> getExpressions() {
@@ -27,7 +32,7 @@ public class PrintStatement extends Statement {
     }
 
     @Override
-    public String toUnformattedJavaCode(int indentLevel) {
+    public String getMainJavaCode(int indentLevel) {
         return String.format("System.out.print(%s)", expressionsAsJavaCode());
     }
     

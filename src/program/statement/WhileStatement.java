@@ -21,9 +21,14 @@ public class WhileStatement extends Statement {
         condition.analyze(table);
         body.analyze(table);
     }
+    
+    protected String conditionAsJavaCode() {
+    	return condition.toConditionalJavaCode();
+    }
 
     @Override
-    public String toUnformattedJavaCode(int indentLevel) {
-        return String.format("while (%s) {\r\n%s%s}", condition.toConditionalJavaCode(), body.toJavaCode(indentLevel + 1), indent(indentLevel));
+    public String getMainJavaCode(int indentLevel) {
+        return String.format("while (%s) {%s\t}", 
+        		conditionAsJavaCode(), body.toJavaCode(indentLevel + 1));
     }
 }

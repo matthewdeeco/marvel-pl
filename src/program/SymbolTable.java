@@ -3,16 +3,18 @@ package program;
 import java.util.HashMap;
 import java.util.Map;
 import parser.ParseException;
-import program.statement.VariableDeclaration;
+import program.statement.*;
 
 public class SymbolTable {
 
-    private Map<String, VariableDeclaration> map;
+    private Map<String, VariableDeclaration> varmap;
+    private Map<String, FunctionDeclaration> funcmap;
     private SymbolTable parent;
 
     public SymbolTable(SymbolTable parent) {
         this.parent = parent;
-        map = new HashMap<String, VariableDeclaration>();
+        varmap = new HashMap<String, VariableDeclaration>();
+        funcmap = new HashMap<String, FunctionDeclaration>();
     }
 
     public SymbolTable() {
@@ -22,7 +24,7 @@ public class SymbolTable {
     public VariableDeclaration lookupVariable(String name) throws ParseException {
         VariableDeclaration variable = null;
         for (SymbolTable table = this; table != null; table = table.getParent()) {
-            variable = table.map.get(name);
+            variable = table.varmap.get(name);
             if (variable != null) {
                 return variable;
             }
@@ -32,12 +34,16 @@ public class SymbolTable {
 
     public void addVariable(VariableDeclaration variable) throws ParseException {
     	String name = variable.getName();
-        if (map.containsKey(name)) {
+        if (varmap.containsKey(name))
             throw new ParseException(String.format("Variable redeclared: %s", name));
-        }
         else
-            map.put(name, variable);
+            varmap.put(name, variable);
     }
+
+	public void addFunction(FunctionDeclaration function) {
+    	String name = function.getName();
+        funcmap.put(name, function);
+	}
 
     public SymbolTable getParent() {
         return parent;

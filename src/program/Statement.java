@@ -7,15 +7,16 @@ public abstract class Statement {
 	public abstract void analyze(SymbolTable table) throws ParseException;
 	
 	/** Is neither indented nor newline-terminated. */
-	public abstract String toUnformattedJavaCode(int indentLevel);
+	public abstract String getMainJavaCode(int indentLevel);
 
 	public String toJavaCode(int indentLevel) {
-		String code = indent(indentLevel);
-		code += toUnformattedJavaCode(indentLevel) + ";\r\n";
+		String code = String.format("%s%s;\r\n",
+				indent(indentLevel), getMainJavaCode(indentLevel));
+		code = code.replace("\t", indent(indentLevel));
 		return code;
 	}
     
-    protected String indent(int indentLevel) {
+    private String indent(int indentLevel) {
     	String indent = "";
 		for (int i = 0; i < indentLevel; i++)
 			for (int j = 0; j < INDENT_SIZE; j++)

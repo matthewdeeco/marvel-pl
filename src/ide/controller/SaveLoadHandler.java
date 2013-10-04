@@ -33,7 +33,6 @@ public abstract class SaveLoadHandler {
 			saveState(model, filePath);
 		}
 	}
-
 	
 	private void saveState(String model, String filePath) {
 		PrintWriter writer = null;
@@ -87,28 +86,14 @@ public abstract class SaveLoadHandler {
 		}
 	}
 	
-	/* method below added by tom */
-	public String pronptJavaFileName() {
+	public String promptFileName() {
 		String path = dialogHandler.inputSaveFilePath(getFileDescription(), getFileDescription());
-		if (path != null) {
-			path = addFileExtensionIfNotThere(path);
-			lastSavePath = path;
-		}
-		else{
+		if (path == null)
 			return "";
-		}			
+		path = addFileExtensionIfNotThere(path);
+		lastSavePath = path;			
 		return path.substring(path.lastIndexOf("/") + 1);
 	}
-	public void saveStateWithFilename(String model,String filePath) {
-		if (filePath != null) {
-			filePath = addFileExtensionIfNotThere(filePath);
-			lastSavePath = filePath;
-			saveState(model, filePath);
-		}
-	}
-	/**/
-	
-	
 
 	private static String readFile(String path) throws IOException {
 		File file = new File(path);

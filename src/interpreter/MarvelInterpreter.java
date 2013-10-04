@@ -40,8 +40,9 @@ public class MarvelInterpreter implements Interpreter {
 		if (program == null)
 			return null;
 		else
-			return String.format("class %s {public static void main(String[] args){%s}}", className,
-					program.toJavaCode());
+			return String.format("import javax.swing.JOptionPane;\r\n\r\n" +
+					"class %s {\r\npublic static void main(String[] args) {" +
+					"%s}\r\n}", className, program.toJavaCode());
 	}
 
 }

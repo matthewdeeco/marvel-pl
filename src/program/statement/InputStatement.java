@@ -21,14 +21,18 @@ public class InputStatement extends Statement {
         reference.analyze(table);
     }
     
-    public String toUnformattedJavaCode(int indentLevel) {
+    public String getMainJavaCode(int indentLevel) {
     	// return String.format("%s = new Scanner(System.in).%s", reference.toJavaCode(), reference.getType().getScannerMethod());
-    	String jOptionPanePrompt = String.format("JOptionPane.showInputDialog(null, \"Enter %s %s\")", reference.getType().toString(), reference.getName());
+    	String prompt = String.format("\"Enter %s %s: \"", reference.getType().toString(), reference.getName());
+    	String commandLinePrompt = String.format("System.out.print(%s)", prompt);
+    	String jOptionPanePrompt = String.format("JOptionPane.showInputDialog(null, %s)", prompt);
     	String valueAssignment;
     	if (reference.getType() == DataType.CHARACTER)
     		valueAssignment = String.format("%s = %s.charAt(0)",reference.toJavaCode(), jOptionPanePrompt);
     	else
-    		valueAssignment = String.format("%s = %s.valueOf(%s)",reference.toJavaCode(), reference.getType().toJavaClass(), jOptionPanePrompt); 
-    	return String.format("%s;\r\n%sSystem.out.println(%s)", valueAssignment, indent(indentLevel), reference.getName());
+    		valueAssignment = String.format("%s = %s.valueOf(%s)", reference.toJavaCode(), reference.getType().toJavaClass(), jOptionPanePrompt);
+    	
+    	return String.format("%s;\r\n\t%s;\r\n\tSystem.out.println(%s)", 
+    			commandLinePrompt, valueAssignment, reference.getName());
     }
 }

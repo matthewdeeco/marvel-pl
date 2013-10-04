@@ -60,9 +60,9 @@ TOKEN: {
 | < BOOLTYPE: "bool" > 
 | < CHARTYPE: "char" > 
 | < STRTYPE: "string" >
-| "while" | "do" | "end"
+| "to" | "while" | "until" | "do" | "repeat" | "end"
 | "if" | "then" | "elsif" | "else" 
-| "print" | "puts" | "input"
+| "print" | "puts" | "alert" | "input"
 | "and" | "or" | "not" | "is" | "isnot" | "unless"
 | "(" | ")" | ";" | "," | "=" | "+" | "-" | "*" | "/"
 }
@@ -101,11 +101,13 @@ Block Block(): {
 Statement Statement(): {
 	Statement s;
 }{
-    (s = DeclarationStatement()
+    (s = VariableDeclaration()
 | 	s = AssignmentStatement()
 |	s = InputStatement()
 |   s = PrintStatement()
 |   s = WhileStatement()
+|   s = UntilStatement()
+|   s = DoRepeatStatement()
 |   s = IfStatement()
 |   s = UnlessStatement())
 	{
@@ -125,21 +127,22 @@ Statement Statement(): {
      }
 }
 
-// Declaration := DataType Ident (= Expression)?
-Statement DeclarationStatement(): {
+// VarDec := DataType Ident (= Expression)?
+Statement VariableDeclaration(): {
 	DataType type;
   	Token v;
   	Expression e = null;} {
   	type = DataType() v = <ID> ("=" e = Expression())? 
   	{return new VariableDeclaration(type, v.image, e);}}
 
-// DataType := int | real | char | string | bool
-DataType DataType(): {} {
-  	<INTTYPE> { return DataType.INTEGER; }
-|	<REALTYPE> { return DataType.REAL; }
-|	<BOOLTYPE> { return DataType.BOOLEAN; }
-|   <CHARTYPE> { return DataType.CHARACTER; }
-|	<STRTYPE> { return DataType.STRING; }}
+// FuncDef := to Ident do Block end
+Statement FunctionDeclaration(): {
+	Token v;
+	Block block;
+} {
+	"to" v = <ID> "do" block = Block() "end"
+	{return new FunctionDeclaration(v.image, block);} 
+}
 
 // Assignment := Ident = Expression
 Statement AssignmentStatement(): {
@@ -160,13 +163,15 @@ Statement InputStatement(): {
 
 // Print := (print | puts) Expression (, Expression)*
 Statement PrintStatement(): {
+	PrintStatement ps;
     Expression e;
-    List<Expression> expressions = new ArrayList<Expression>();
-    boolean newline = false;
 } {
-	("print" | "puts" {newline = true;}) e = Expression() {expressions.add(e);}
-    ("," e = Expression() {expressions.add(e);} )*
-    {return newline ? new PutsStatement(expressions) : new PrintStatement(expressions);}
+	("print" {ps = new PrintStatement();} |
+	 "puts" {ps = new PutsStatement();} | 
+	 "alert" {ps = new AlertStatement();})
+	e = Expression() { ps.addExpression(e); }
+    ("," e = Expression() { ps.addExpression(e); } )*
+    {return ps;}
 }
 
 // While := while Expression do Block end
@@ -176,26 +181,32 @@ Statement WhileStatement(): {
 } {
 	"while" condition = Expression() "do" body = Block() "end"
     {return new WhileStatement(condition, body);}
-| 	"do" body = Block() "then" "while" condition = Expression() "end"
-	{return new DoWhileStatement(condition, body);}
-
 }
 
-// Unless := unless Expression then Block end
-Statement UnlessStatement(): {
-	UnlessStatement us = new UnlessStatement();
-	Block block;
+// Until := until Expression do Block end
+Statement UntilStatement(): {
+    Block body;
     Expression condition;
 } {
-	"unless" condition = Expression() "then" block = Block()
-	{us.addCondition(condition, block);}
-	
-	"end"
-    {return us;}
+	"until" condition = Expression() "do" body = Block() "end"
+    {return new UntilStatement(condition, body);}
+}
+
+// DoWhile := do Block repeat (while|until) Expression end
+Statement DoRepeatStatement(): {
+    Block body;
+    Expression condition;
+    boolean isWhile;
+} {
+	"do" body = Block() "repeat"
+	("while" {isWhile = true;} | "until" {isWhile=false;})
+	condition = Expression() "end"
+	{if (isWhile) return new DoWhileStatement(condition, body); 
+			 else return new DoUntilStatement(condition, body);}
 }
 
 
-// If := if Expression then Block (elsif Expression then Block)* (else Block)? end
+// If := if Expression do Block (elsif Expression do Block)* (else Block)? end
 Statement IfStatement(): {
 	IfStatement ifs = new IfStatement();
     Block block, elseBlock;
@@ -212,6 +223,15 @@ Statement IfStatement(): {
 	
 	"end"
     {return ifs;}
+}
+
+// Unless := unless Expression do Block end
+Statement UnlessStatement(): {
+	Block block;
+    Expression condition;
+} {
+	"unless" condition = Expression() "do" block = Block() "end"
+	{return new UnlessStatement(condition, block);}
 }
 
 // Expression := Logical ( LogicalOp Logical )*
@@ -294,6 +314,16 @@ Expression Atom(): {
 |   "(" e = Expression() ")" {return e;}
 }
 
+// DataType := int | real | char | string | bool
+DataType DataType(): {
+} {
+  	<INTTYPE> { return DataType.INTEGER; }
+|	<REALTYPE> { return DataType.REAL; }
+|	<BOOLTYPE> { return DataType.BOOLEAN; }
+|   <CHARTYPE> { return DataType.CHARACTER; }
+|	<STRTYPE> { return DataType.STRING; }
+}
+
 // LogicalOp := and | or
 BinaryExpression.Operator LogicalOperator(): {
 }{
@@ -312,14 +342,6 @@ BinaryExpression.Operator ComparisonOperator(): {
 |   ">=" {return BinaryExpression.Operator.GREATER_THAN_OR_EQUAL_TO;}
 }
 
-// UnaryOp := + | - | not
-UnaryExpression.Operator UnaryOperator(): {
-}{
-    "+" {return UnaryExpression.Operator.POSITIVE;}
-|   "-" {return UnaryExpression.Operator.NEGATIVE;}
-|   "not" {return UnaryExpression.Operator.NOT;}
-}
-
 // AddOp := + | -
 BinaryExpression.Operator AddOperator(): {
 }{
@@ -332,4 +354,12 @@ BinaryExpression.Operator MulOperator(): {
 }{
     "*" {return BinaryExpression.Operator.TIMES;}
 |   "/" {return BinaryExpression.Operator.DIVIDE;}
+}
+
+// UnaryOp := + | - | not
+UnaryExpression.Operator UnaryOperator(): {
+}{
+    "+" {return UnaryExpression.Operator.POSITIVE;}
+|   "-" {return UnaryExpression.Operator.NEGATIVE;}
+|   "not" {return UnaryExpression.Operator.NOT;}
 }

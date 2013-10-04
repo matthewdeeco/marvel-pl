@@ -22,10 +22,15 @@ public class DoWhileStatement extends Statement{
         condition.analyze(table);
         body.analyze(table);
     }
+	
+	protected String conditionAsJavaCode() {
+		return condition.toConditionalJavaCode();
+	}
 
     @Override
-    public String toUnformattedJavaCode(int indentLevel) {
-        return String.format("do {\r\n%s%s} while (%s) ", body.toJavaCode(indentLevel + 1), indent(indentLevel), condition.toConditionalJavaCode());
+    public String getMainJavaCode(int indentLevel) {
+        return String.format("do {\r\n%s\t} while (%s)", 
+        		body.toJavaCode(indentLevel + 1), conditionAsJavaCode());
     }
 
 }

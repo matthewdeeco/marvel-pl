@@ -25,11 +25,11 @@ public class AssignmentStatement extends Statement {
         leftType= variableReference.getType();
         rightType = expression.getType();
         if (! leftType.isCompatibleWith(rightType))
-        	throw new ParseException(String.format("%s -> Incompatible types: %s and %s", toUnformattedJavaCode(0), leftType.toString(), rightType.toString()));
+        	throw new ParseException(String.format("%s -> Incompatible types: %s and %s", getMainJavaCode(0), leftType.toString(), rightType.toString()));
     }
 
 	@Override
-	public String toUnformattedJavaCode(int indentLevel) {
+	public String getMainJavaCode(int indentLevel) {
 		String cast = "";
 		if (leftType == DataType.INTEGER && rightType == DataType.REAL)
 			cast = String.format("(%s)", leftType.toJavaCode());
