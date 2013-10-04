@@ -6,6 +6,7 @@ import java.util.Scanner;
 import ide.view.DialogHandler;
 
 public abstract class SaveLoadHandler {
+	
 	private DialogHandler dialogHandler;
 	private String lastSavePath = null;
 	private String lastLoadPath = null;
@@ -33,6 +34,7 @@ public abstract class SaveLoadHandler {
 		}
 	}
 
+	
 	private void saveState(String model, String filePath) {
 		PrintWriter writer = null;
 		try {
@@ -84,6 +86,29 @@ public abstract class SaveLoadHandler {
 			return null;
 		}
 	}
+	
+	/* method below added by tom */
+	public String pronptJavaFileName() {
+		String path = dialogHandler.inputSaveFilePath(getFileDescription(), getFileDescription());
+		if (path != null) {
+			path = addFileExtensionIfNotThere(path);
+			lastSavePath = path;
+		}
+		else{
+			return "";
+		}			
+		return path.substring(path.lastIndexOf("/") + 1);
+	}
+	public void saveStateWithFilename(String model,String filePath) {
+		if (filePath != null) {
+			filePath = addFileExtensionIfNotThere(filePath);
+			lastSavePath = filePath;
+			saveState(model, filePath);
+		}
+	}
+	/**/
+	
+	
 
 	private static String readFile(String path) throws IOException {
 		File file = new File(path);

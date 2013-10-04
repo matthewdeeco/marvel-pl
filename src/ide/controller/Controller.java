@@ -59,6 +59,7 @@ public class Controller {
 		}
 	}
 
+	/* translateCode method created by matthew 
 	public void translateCode() {
 		try {
 			String filename = javaSaveLoadHandler.getLastFileName();
@@ -75,5 +76,30 @@ public class Controller {
 		} catch (Exception ex) {
 			logger.exception(ex);
 		}
+	}*/
+	
+	
+	/* translateCode modified by tom */
+	public void translateCode() {
+		try {
+			
+			String filename = javaSaveLoadHandler.pronptJavaFileName();
+			if (filename.equals(""))
+				return;
+			
+			String savePath = javaSaveLoadHandler.getLastSavePath(); 
+			javaSaveLoadHandler.resetPaths();
+			String className = filename.substring(0, filename.lastIndexOf(".java"));
+			String javaCode = interpreter.translateToJavaSource(className, view.getText());
+			if (javaCode != null)
+				javaSaveLoadHandler.saveStateWithFilename(javaCode,savePath);
+			logger.message("Translated successfully");
+			view.switchToConsole();
+		} catch (Exception ex) {
+			logger.exception(ex);
+		}
 	}
+	
+	
+	
 }
