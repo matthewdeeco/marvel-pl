@@ -41,7 +41,9 @@ public class Controller {
 	
 	public void saveFile() {
 		marvelSaveLoadHandler.saveState(view.getText());
-		view.setTitle(marvelSaveLoadHandler.getLastFileName() + " - " + marvelSaveLoadHandler.getLastSavePath());
+		String lastSavePath = marvelSaveLoadHandler.getLastSavePath();
+		if (lastSavePath != null)
+			view.setTitle(marvelSaveLoadHandler.getLastFileName() + " - " + lastSavePath);
 	}
 
 	public void quit() {
