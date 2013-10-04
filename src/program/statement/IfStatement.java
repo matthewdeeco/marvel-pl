@@ -51,4 +51,14 @@ public class IfStatement extends Statement {
     		result += String.format(" else {\r\n%s\t}", elseBlock.toJavaCode(indentLevel + 1));
     	return result;
     }
+    
+    @Override
+    public String getJavaDeclarations() {
+    	String result = "";
+        for (Block block : actionMap.values())
+        	result += block.getJavaDeclarations();
+        if (elseBlock != null)
+        	result += elseBlock.getJavaDeclarations();
+        return result;
+	}
 }

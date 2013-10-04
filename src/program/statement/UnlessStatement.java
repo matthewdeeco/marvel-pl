@@ -26,4 +26,9 @@ public class UnlessStatement extends Statement {
     			condition.toConditionalJavaCode(),
     			action.toJavaCode(indentLevel + 1));
     }
+    
+    @Override
+    public String getJavaDeclarations() {
+		return action.getJavaDeclarations();
+	}
 }

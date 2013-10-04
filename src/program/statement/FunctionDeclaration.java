@@ -22,8 +22,8 @@ public class FunctionDeclaration extends Statement {
 	
 	@Override
 	public String getJavaDeclarations() {
-		return String.format("private static void %s() {\r\n%s}\r\n\r\n",
-				name, body.toJavaCode(1));
+		return String.format("%s\r\nprivate static void %s() {\r\n%s}\r\n\r\n",
+				body.getJavaDeclarations(), name, body.toJavaCode(1));
 	}
 
 	@Override

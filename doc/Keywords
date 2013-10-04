@@ -1,5 +1,9 @@
+to
+call
 while
+until
 do
+repeat
 end
 if
 then
@@ -7,4 +11,6 @@ elsif
 else
 print
 puts
+alert
 input
+

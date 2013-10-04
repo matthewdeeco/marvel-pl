@@ -22,9 +22,12 @@ public class MarvelInterpreter implements Interpreter {
 		if (program == null)
 			return null;
 		String javaCode = program.toJavaCode();
+		String declarations = program.getJavaDeclarations();
+		logger.message("======  Declarations  =====");
+		logger.message(declarations);
 		logger.message("======Java Translation=====");
 		logger.message(javaCode);
-		interpreter.evaluate(program.getJavaDeclarations());
+		interpreter.evaluate(declarations);
 		return interpreter.evaluate(javaCode);
 	}
 

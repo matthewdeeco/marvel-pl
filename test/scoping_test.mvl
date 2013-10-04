@@ -1,0 +1,10 @@
+string x;
+do
+	input x;
+	int y;
+	input y;
+	while y > 0 do
+		y = y - 1;
+		alert y;
+	end;
+repeat until x end;

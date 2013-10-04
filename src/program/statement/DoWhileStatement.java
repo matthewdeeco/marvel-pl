@@ -32,5 +32,10 @@ public class DoWhileStatement extends Statement{
         return String.format("do {\r\n%s\t} while (%s)", 
         		body.toJavaCode(indentLevel + 1), conditionAsJavaCode());
     }
+    
+    @Override
+    public String getJavaDeclarations() {
+		return body.getJavaDeclarations();
+	}
 
 }

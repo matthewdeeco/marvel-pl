@@ -25,10 +25,15 @@ public class WhileStatement extends Statement {
     protected String conditionAsJavaCode() {
     	return condition.toConditionalJavaCode();
     }
+    
+    @Override
+    public String getJavaDeclarations() {
+		return body.getJavaDeclarations();
+	}
 
     @Override
     public String getMainJavaCode(int indentLevel) {
-        return String.format("while (%s) {%s\t}", 
+        return String.format("while (%s) {\r\n%s\t}", 
         		conditionAsJavaCode(), body.toJavaCode(indentLevel + 1));
     }
 }
