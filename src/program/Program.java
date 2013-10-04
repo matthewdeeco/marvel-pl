@@ -14,9 +14,9 @@ public class Program {
     public Block getBlock() {
         return block;
     }
-
-    public void analyze(SymbolTable table) throws ParseException {
-        block.analyze(table);
+    
+    public String getJavaDeclarations() {
+    	return block.getJavaDeclarations();
     }
 
 	public String toJavaCode() {
@@ -26,4 +26,8 @@ public class Program {
 	public void analyze() throws ParseException {
 		analyze(new SymbolTable());
 	}
+
+    public void analyze(SymbolTable table) throws ParseException {
+        block.analyze(table);
+    }
 }

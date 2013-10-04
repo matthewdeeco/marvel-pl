@@ -21,12 +21,18 @@ public class Block {
             s.analyze(table);
         }
     }
+    
+    public String getJavaDeclarations() {
+    	StringBuilder sb = new StringBuilder();
+		for (Statement s: statements)
+			sb.append(s.getJavaDeclarations());
+		return sb.toString();
+    }
 
 	public String toJavaCode(int indentLevel) {
 		StringBuilder sb = new StringBuilder();
-		for (Statement s: statements) {
+		for (Statement s: statements)
 			sb.append(s.toJavaCode(indentLevel));
-		}
 		return sb.toString();
 	}
 }

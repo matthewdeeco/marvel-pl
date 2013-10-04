@@ -22,7 +22,7 @@ public class AssignmentStatement extends Statement {
     public void analyze(SymbolTable table) throws ParseException {
         variableReference.analyze(table);
         expression.analyze(table);
-        leftType= variableReference.getType();
+        leftType = variableReference.getType();
         rightType = expression.getType();
         if (! leftType.isCompatibleWith(rightType))
         	throw new ParseException(String.format("%s -> Incompatible types: %s and %s", getMainJavaCode(0), leftType.toString(), rightType.toString()));

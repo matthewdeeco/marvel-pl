@@ -24,6 +24,7 @@ public class MarvelInterpreter implements Interpreter {
 		String javaCode = program.toJavaCode();
 		logger.message("======Java Translation=====");
 		logger.message(javaCode);
+		interpreter.evaluate(program.getJavaDeclarations());
 		return interpreter.evaluate(javaCode);
 	}
 
@@ -41,8 +42,11 @@ public class MarvelInterpreter implements Interpreter {
 			return null;
 		else
 			return String.format("import javax.swing.JOptionPane;\r\n\r\n" +
-					"class %s {\r\npublic static void main(String[] args) {" +
-					"%s}\r\n}", className, program.toJavaCode());
+					"class %s {\r\n\r\n" +
+					"\t%s" +
+					"\tpublic static void main(String[] args) {\r\n" +
+					"%s\t}\r\n}", 
+					className, program.getJavaDeclarations(), program.toJavaCode());
 	}
 
 }

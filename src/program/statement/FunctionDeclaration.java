@@ -17,6 +17,13 @@ public class FunctionDeclaration extends Statement {
 	@Override
 	public void analyze(SymbolTable table) throws ParseException {
 		table.addFunction(this);
+		body.analyze(table);
+	}
+	
+	@Override
+	public String getJavaDeclarations() {
+		return String.format("private static void %s() {\r\n%s}\r\n\r\n",
+				name, body.toJavaCode(1));
 	}
 
 	@Override

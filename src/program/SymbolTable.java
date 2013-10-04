@@ -48,4 +48,14 @@ public class SymbolTable {
     public SymbolTable getParent() {
         return parent;
     }
+
+	public FunctionDeclaration lookupFunction(String name) throws ParseException {
+        FunctionDeclaration function = null;
+        for (SymbolTable table = this; table != null; table = table.getParent()) {
+            function = table.funcmap.get(name);
+            if (function != null)
+                return function;
+        }
+        throw new ParseException(String.format("Function called before declaration: %s", name));
+	}
 }

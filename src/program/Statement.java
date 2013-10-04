@@ -16,6 +16,10 @@ public abstract class Statement {
 		return code;
 	}
     
+	public String getJavaDeclarations() {
+		return "";
+	}
+	
     private String indent(int indentLevel) {
     	String indent = "";
 		for (int i = 0; i < indentLevel; i++)

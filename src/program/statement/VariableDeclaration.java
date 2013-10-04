@@ -25,11 +25,16 @@ public class VariableDeclaration extends Statement {
 		if (initialValue != null)
 			new AssignmentStatement(new VariableReference(name), initialValue).analyze(table);
 	}
+	
+	@Override
+	public String getJavaDeclarations() {
+		String value = (initialValue == null) ? type.getInitialValue() : initialValue.toJavaCode();
+		return String.format("private static %s %s = %s;\r\n", type.toJavaCode(), name, value);		
+	}
 
 	@Override
 	public String getMainJavaCode(int indentLevel) {
-		String value = (initialValue == null) ? type.getInitialValue() : initialValue.toJavaCode();
-		return String.format("%s %s = %s", type.toJavaCode(), name, value);
+		return "";
 	}
 	
 	public DataType getType() {

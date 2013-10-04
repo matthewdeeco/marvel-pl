@@ -60,8 +60,8 @@ TOKEN: {
 | < BOOLTYPE: "bool" > 
 | < CHARTYPE: "char" > 
 | < STRTYPE: "string" >
-| "to" | "while" | "until" | "do" | "repeat" | "end"
-| "if" | "then" | "elsif" | "else" 
+| "to" | "call" | "while" | "until" | "do" | "repeat" | "end"
+| "if" | "then" | "elsif" | "else"
 | "print" | "puts" | "alert" | "input"
 | "and" | "or" | "not" | "is" | "isnot" | "unless"
 | "(" | ")" | ";" | "," | "=" | "+" | "-" | "*" | "/"
@@ -109,7 +109,9 @@ Statement Statement(): {
 |   s = UntilStatement()
 |   s = DoRepeatStatement()
 |   s = IfStatement()
-|   s = UnlessStatement())
+|   s = UnlessStatement()
+|	s = FunctionDeclaration()
+|	s = FunctionCall())
 	{
 		try {
             s.analyze(table);
@@ -142,6 +144,14 @@ Statement FunctionDeclaration(): {
 } {
 	"to" v = <ID> "do" block = Block() "end"
 	{return new FunctionDeclaration(v.image, block);} 
+}
+
+// FuncCall := call Ident
+Statement FunctionCall(): {
+	Token v;
+} {
+	"call" v = <ID>
+	{return new FunctionCall(v.image);}
 }
 
 // Assignment := Ident = Expression
