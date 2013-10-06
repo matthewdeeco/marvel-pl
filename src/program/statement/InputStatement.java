@@ -31,8 +31,13 @@ public class InputStatement extends Statement {
     		valueAssignment = String.format("%s = %s.charAt(0)",reference.toJavaCode(), jOptionPanePrompt);
     	else
     		valueAssignment = String.format("%s = %s.valueOf(%s)", reference.toJavaCode(), reference.getType().toJavaClass(), jOptionPanePrompt);
+    	String typeSafeWhileLoop = String.format("while (true) {\r\n" +
+    	"\ttry { %s; %s; break; }\r\n" +
+    	"\tcatch (Exception ex) { System.out.println(\"Invalid input!\"); }\r\n}",
+    	commandLinePrompt, valueAssignment);
     	
-    	return String.format("%s;\r\n\t%s;\r\n\tSystem.out.println(%s)", 
-    			commandLinePrompt, valueAssignment, reference.getName());
+    	
+    	return String.format("\t%s\r\n\tSystem.out.println(%s)", 
+    			typeSafeWhileLoop, reference.getName());
     }
 }
