@@ -2,6 +2,7 @@ package program.expression;
 
 import parser.ParseException;
 import program.DataType;
+import static program.DataType.*;
 import program.Expression;
 import program.SymbolTable;
 
@@ -58,10 +59,43 @@ public class BinaryExpression extends Expression {
     private void checkCompatibility() throws ParseException {
     	/* if (leftType == DataType.STRING && operator == Operator.TIMES && rightType == DataType.INTEGER)
     		return;
-    	else */ if (!leftType.isCompatibleWith(rightType))
+    	else */ if (! isTypeCompatible())
         	throw new ParseException(String.format("%s -> Incompatible types: %s and %s", toJavaCode(), leftType.toString(), rightType.toString()));
-        else if (!leftType.isCompatibleWith(operator))
+        else if (! isOperatorCompatible())
         	throw new ParseException(String.format("%s -> Unsupported operation: %s and '%s'", toJavaCode(), leftType.toString(), operator.toString()));
+    }
+    
+    private boolean isTypeCompatible() {
+    	if (leftType == rightType)
+    		return true;
+    	else if ((leftType == INTEGER && rightType == REAL) ||
+    			 (leftType == REAL && rightType == INTEGER))
+    		return true;
+    	else
+    		return false;
+    }
+    
+    public boolean isOperatorCompatible() {
+    	switch (operator) {
+    		case PLUS:
+    			return (leftType == INTEGER || leftType == REAL || leftType == STRING);
+    		case MINUS:
+    		case TIMES:
+    		case DIVIDE:
+    			return (leftType == INTEGER || leftType == REAL);
+			case AND:
+			case OR:
+			case EQUALS:
+			case NOT_EQUALS:
+				return true;
+			case GREATER_THAN_OR_EQUAL_TO:
+			case GREATER_THAN:
+			case LESS_THAN:
+			case LESS_THAN_OR_EQUAL_TO:
+    			return (leftType == INTEGER || leftType == REAL);
+			default:
+				return false;
+    	}
     }
     
     @Override

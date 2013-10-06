@@ -2,7 +2,6 @@ package ide.controller;
 
 import java.io.*;
 import java.util.Scanner;
-
 import ide.view.DialogHandler;
 
 public abstract class SaveLoadHandler {

@@ -216,7 +216,7 @@ Statement DoRepeatStatement(): {
 }
 
 
-// If := if Expression do Block (elsif Expression do Block)* (else Block)? end
+// If := if Expression then Block (elsif Expression then Block)* (else Block)? end
 Statement IfStatement(): {
 	IfStatement ifs = new IfStatement();
     Block block, elseBlock;

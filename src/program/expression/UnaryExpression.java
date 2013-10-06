@@ -39,9 +39,21 @@ public class UnaryExpression extends Expression {
     }
     
     private void checkCompatibility() throws ParseException {
-        if (!type.isCompatibleWith(operator))
+        if (! isTypeCompatible())
         	throw new ParseException(String.format("%s -> Unsupported operation: %s and '%s'", toJavaCode(), type.toString(), operator.toString()));
     }
+
+	private boolean isTypeCompatible() {
+		switch(operator) {
+			case POSITIVE:
+			case NEGATIVE:
+				return (type == DataType.INTEGER || type == DataType.REAL);
+			case NOT:
+				return true;
+			default:
+				return false;
+		}
+	}
     
     @Override
     public String toJavaCode() {

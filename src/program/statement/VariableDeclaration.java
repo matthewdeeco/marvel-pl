@@ -11,30 +11,33 @@ public class VariableDeclaration extends Statement {
     
 	private DataType type;
 	private String name;
-	private Expression initialValue;
+	private AssignmentStatement assignment;
 
 	public VariableDeclaration(DataType type, String name, Expression initialValue) {
 		this.type = type;
 		this.name = name;
-		this.initialValue = initialValue;
+		if (initialValue != null)
+			assignment = new AssignmentStatement(new VariableReference(name), initialValue);
 	}
 
 	@Override
 	public void analyze(SymbolTable table) throws ParseException {
 		table.addVariable(this);
-		if (initialValue != null)
-			new AssignmentStatement(new VariableReference(name), initialValue).analyze(table);
+		if (assignment != null)
+			assignment.analyze(table);
 	}
 	
 	@Override
 	public String getJavaDeclarations() {
-		String value = (initialValue == null) ? type.getInitialValue() : initialValue.toJavaCode();
-		return String.format("private static %s %s = %s;\r\n", type.toJavaCode(), name, value);		
+		return String.format("private static %s %s;\r\n", type.toJavaCode(), name);		
 	}
 
 	@Override
 	public String getMainJavaCode(int indentLevel) {
-		return "";
+		if (assignment != null)
+			return assignment.getMainJavaCode(indentLevel);
+		else
+			return String.format("%s = %s;\r\n", name, type.getInitialValue());
 	}
 	
 	public DataType getType() {

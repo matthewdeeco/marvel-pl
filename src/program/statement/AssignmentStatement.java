@@ -24,8 +24,22 @@ public class AssignmentStatement extends Statement {
         expression.analyze(table);
         leftType = variableReference.getType();
         rightType = expression.getType();
-        if (! leftType.isCompatibleWith(rightType))
+        if (leftType == DataType.BOOLEAN)
+        	return;
+        if (! isTypeCompatible())
         	throw new ParseException(String.format("%s -> Incompatible types: %s and %s", getMainJavaCode(0), leftType.toString(), rightType.toString()));
+    }
+    
+    private boolean isTypeCompatible() {
+    	if (leftType == rightType)
+    		return true;
+    	else if ((leftType == DataType.INTEGER && rightType == DataType.REAL) ||
+    		(leftType == DataType.REAL && rightType == DataType.INTEGER))
+    		return true;
+    	else if (leftType == DataType.BOOLEAN)
+    		return true;
+    	else
+    		return false;
     }
 
 	@Override
@@ -33,6 +47,9 @@ public class AssignmentStatement extends Statement {
 		String cast = "";
 		if (leftType == DataType.INTEGER && rightType == DataType.REAL)
 			cast = String.format("(%s)", leftType.toJavaCode());
-		return String.format("%s = %s%s", variableReference.toJavaCode(), cast, expression.toJavaCode());
+		if (leftType == DataType.BOOLEAN)
+			return String.format("%s = (%s)", variableReference.toJavaCode(), expression.toConditionalJavaCode());
+		else
+			return String.format("%s = %s%s", variableReference.toJavaCode(), cast, expression.toJavaCode());
 	}
 }
