@@ -86,7 +86,7 @@ public abstract class SaveLoadHandler {
 	}
 	
 	public String promptFileName() {
-		String path = dialogHandler.inputSaveFilePath(getFileDescription(), getFileDescription());
+		String path = dialogHandler.inputSaveFilePath(getFileDescription(), getFileExtension());
 		if (path == null)
 			return "";
 		path = addFileExtensionIfNotThere(path);
@@ -113,13 +113,6 @@ public abstract class SaveLoadHandler {
 	
 	public String getLastLoadPath() {
 		return lastLoadPath;
-	}
-	
-	public String getLastFileName() {
-		String path = (lastSavePath != null) ? lastSavePath : lastLoadPath;
-		if (path == null)
-			return "";
-		return path.substring(path.lastIndexOf("/") + 1);
 	}
 	
 	public void resetPaths() {

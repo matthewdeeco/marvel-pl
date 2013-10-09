@@ -1,0 +1,51 @@
+/*
+ * Enter 2 numbers and an operator
+ * Output the arithmetic result
+ * Error-checking for user input implemented
+ */
+
+int num1;
+int num2;
+char operator;
+input num1;
+input num2;
+real result;
+
+to add do
+	result = num1 + num2;
+end;
+
+to subtract do
+	result = num1 - num2;
+end;
+
+to multiply do
+	result = num1 * num2;
+end;
+
+to divide do
+	result = num1 / num2;
+end;
+
+do
+	input operator;
+	char op = operator;
+	bool accepted = false;
+	if op is '+' then
+		accepted = true;
+		call add;
+	elsif op is '-' then
+		accepted = true;
+		call subtract;
+	elsif op is '*' then
+		accepted = true;
+		call multiply;
+	elsif op is '/' then
+		accepted = true;
+		call divide;
+	else
+		alert "Invalid operator!";
+	end;
+repeat while not accepted end;
+puts num1, op, num2, "=", result;
+alert num1, op, num2, "=", result;

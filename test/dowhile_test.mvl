@@ -1,5 +1,0 @@
-/* Input x until x becomes 0. */
-int x;
-do
-	input x;
-repeat while x is 0 end;

@@ -35,7 +35,7 @@ public class Controller {
 		String code = marvelSaveLoadHandler.loadState();
 		if (code != null) {
 			view.setText(code);
-			view.setTitle(marvelSaveLoadHandler.getLastFileName() + " - " + marvelSaveLoadHandler.getLastLoadPath());
+			view.setTitle(marvelSaveLoadHandler.getLastLoadPath());
 		}
 	}
 	
@@ -43,7 +43,7 @@ public class Controller {
 		marvelSaveLoadHandler.saveState(view.getText());
 		String lastSavePath = marvelSaveLoadHandler.getLastSavePath();
 		if (lastSavePath != null)
-			view.setTitle(marvelSaveLoadHandler.getLastFileName() + " - " + lastSavePath);
+			view.setTitle(lastSavePath);
 	}
 
 	public void quit() {

@@ -1,5 +1,0 @@
-char x;
-char z = 'a';
-print "Enter x: ";
-input x;
-print x + z;

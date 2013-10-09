@@ -1,7 +1,0 @@
-real x;
-real y;
-print "Enter x: ";
-input x;
-print "Enter y: ";
-input y;
-puts not (x - y - 2 - - 4);

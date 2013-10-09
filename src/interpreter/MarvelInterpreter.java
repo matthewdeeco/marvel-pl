@@ -21,12 +21,12 @@ public class MarvelInterpreter implements Interpreter {
 		Program program = parser.parse(logger);
 		if (program == null)
 			return null;
-		String javaCode = program.toJavaCode();
 		String declarations = program.getJavaDeclarations();
-		logger.message("======  Declarations  =====");
+		String javaCode = program.toJavaCode();
+		/*logger.message("======  Declarations  =====");
 		logger.message(declarations);
 		logger.message("======Java Translation=====");
-		logger.message(javaCode);
+		logger.message(javaCode); */
 		interpreter.evaluate(declarations);
 		return interpreter.evaluate(javaCode);
 	}

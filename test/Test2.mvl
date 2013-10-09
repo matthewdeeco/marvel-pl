@@ -1,0 +1,27 @@
+/*
+ * Print multiple copies of a string
+ * Allow user to repeat program
+ */
+ 
+string str;
+int times;
+char response;
+
+to multiply_string do
+	string result = "";
+	int i = times;
+	until i is 0 do
+		i = i - 1;
+		result = result + str;
+	end;
+end;
+
+do
+	input str;
+	input times;
+	unless times < 1 do
+		call multiply_string;
+		alert str, "*", times, "=", result;
+	end;
+	input response;
+repeat until response is 'N' or response is 'n' end;
